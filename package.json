@@ -10,12 +10,14 @@
     "emulator": "firebase emulators:start --project demo-vtater"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.13",
     "firebase": "^9.12.1",
     "next": "12.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.8",
     "autoprefixer": "^10.4.12",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-airbnb": "^19.0.4",
