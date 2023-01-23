@@ -2,10 +2,11 @@ import { FormElement, Modal } from "@nextui-org/react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 import Button from "../lib/Button";
 import Input from "../lib/Input";
 import Text from "../lib/Text";
-import { useRouter } from "next/router";
 
 interface SignupProps {
   /** Is the signup modal visible? */
@@ -21,7 +22,9 @@ export default function SignupModal({ open, onClose }: SignupProps) {
     useCreateUserWithEmailAndPassword(auth);
   const router = useRouter();
 
-  const passwordFieldsValid = password === passwordConfirm;
+  const passwordFieldsValid = Boolean(
+    password && passwordConfirm && password === passwordConfirm
+  );
   const canSubmit = email && passwordFieldsValid;
 
   const handleChangeValue = (e: ChangeEvent<FormElement>, field: string) => {
@@ -42,14 +45,19 @@ export default function SignupModal({ open, onClose }: SignupProps) {
   const handleSubmit = async (e: FormEvent<unknown>) => {
     e.preventDefault();
     if (!canSubmit) return;
-    const userResp = createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        onClose();
-        router.replace("/profile");
+    createUserWithEmailAndPassword(email, password)
+      .then((userResp) => {
+        if (!userResp) {
+          toast.error("Unable to sign up. Please try again.");
+          setPassword("");
+          setPasswordConfirm("");
+        } else {
+          onClose();
+          router.replace("/profile");
+        }
       })
-      .catch((err) => {
-        // TODO: handle error
-        console.error(err.message);
+      .catch(() => {
+        toast.error("Unable to sign up. Please try again.");
       });
   };
 
@@ -115,7 +123,7 @@ export default function SignupModal({ open, onClose }: SignupProps) {
             type="submit"
             disabled={!canSubmit}
           >
-            Submit
+            submit
           </Button>
         </Modal.Footer>
       </form>
