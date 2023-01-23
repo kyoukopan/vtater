@@ -1,5 +1,5 @@
 import { FormElement, Modal } from "@nextui-org/react";
-import { ChangeEvent, FormEvent, useCallback, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import Button from "../lib/Button";
 import Input from "../lib/Input";
 import Text from "../lib/Text";

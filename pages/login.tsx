@@ -7,7 +7,7 @@ import SignupModal from "@/components/Auth/Signup";
 import Button from "@/components/lib/Button";
 
 export default function LoginPage() {
-  const [signupVisible, setSignupVisible] = useState(true);
+  const [signupVisible, setSignupVisible] = useState(false);
 
   const handleClickJoin = useCallback(() => {
     setSignupVisible(true);

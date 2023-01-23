@@ -6,7 +6,7 @@ export default function BrandHeader() {
       <Text
         h1
         center
-        className="-mb-3 select-none"
+        className="-mb-2 select-none text-7xl"
         css={{
           textGradient: "100deg, $purple500 30%, $pink500 90%",
         }}
