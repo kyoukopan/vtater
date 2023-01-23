@@ -1,13 +1,25 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Container } from "@nextui-org/react";
 import BrandHeader from "@/components/lib/BrandHeader";
 import LoginCard from "@/components/Auth/Login";
 import SignupModal from "@/components/Auth/Signup";
 import Button from "@/components/lib/Button";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/router";
 
 export default function LoginPage() {
   const [signupVisible, setSignupVisible] = useState(false);
+  const [user, loading, error] = useAuthState(auth);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading || error) return;
+    if (user) {
+      router.replace("/profile");
+    }
+  }, [loading, router, user]);
 
   const handleClickJoin = useCallback(() => {
     setSignupVisible(true);
@@ -27,7 +39,6 @@ export default function LoginPage() {
           size="lg"
           className="mx-auto"
           onClick={handleClickJoin}
-          
         >
           No account? Join today!
         </Button>

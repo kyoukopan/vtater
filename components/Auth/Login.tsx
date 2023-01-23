@@ -1,5 +1,7 @@
+import { auth } from "@/lib/firebase";
 import { Card } from "@nextui-org/react";
-import { FormEvent, useCallback, useState } from "react";
+import { FormEvent, useState } from "react";
+import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import Button from "../lib/Button";
 import Input from "../lib/Input";
 import Text from "../lib/Text";
@@ -7,6 +9,8 @@ import Text from "../lib/Text";
 export default function LoginCard({ className }: { className: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signInWithEmailAndPassword, user, loading, error] =
+    useSignInWithEmailAndPassword(auth);
 
   const handleChange = (value: string, field: string) => {
     if (field === "email") {
@@ -21,6 +25,12 @@ export default function LoginCard({ className }: { className: string }) {
   const handleSubmit = (e: FormEvent<unknown>) => {
     e.preventDefault();
     if (!canSubmit) return;
+    signInWithEmailAndPassword(email, password)
+      .then(() => {})
+      .catch((err) => {
+        // TODO: Handle error
+        console.error(err.message);
+      });
   };
 
   return (
@@ -39,6 +49,7 @@ export default function LoginCard({ className }: { className: string }) {
         required
         placeholder="email"
         type="email"
+        loading={loading}
       />
       <Input
         password
@@ -48,12 +59,13 @@ export default function LoginCard({ className }: { className: string }) {
         required
         onChange={(e) => handleChange(e.target.value, "password")}
         placeholder="password"
+        loading={loading}
       />
       <div className="flex justify-between">
         <Button size="sm" link onClick={() => {}}>
           forgot your password?
         </Button>
-        <Button disabled={!canSubmit} type="submit" size="sm">
+        <Button disabled={!canSubmit} loading={loading} type="submit" size="sm">
           continue
         </Button>
       </div>

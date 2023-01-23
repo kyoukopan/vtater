@@ -1,8 +1,11 @@
 import { FormElement, Modal } from "@nextui-org/react";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 import Button from "../lib/Button";
 import Input from "../lib/Input";
 import Text from "../lib/Text";
+import { useRouter } from "next/router";
 
 interface SignupProps {
   /** Is the signup modal visible? */
@@ -14,6 +17,9 @@ export default function SignupModal({ open, onClose }: SignupProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth);
+  const router = useRouter();
 
   const passwordFieldsValid = password === passwordConfirm;
   const canSubmit = email && passwordFieldsValid;
@@ -33,9 +39,18 @@ export default function SignupModal({ open, onClose }: SignupProps) {
     set(e.target.value);
   };
 
-  const handleSubmit = (e: FormEvent<unknown>) => {
+  const handleSubmit = async (e: FormEvent<unknown>) => {
     e.preventDefault();
     if (!canSubmit) return;
+    const userResp = createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        onClose();
+        router.replace("/profile");
+      })
+      .catch((err) => {
+        // TODO: handle error
+        console.error(err.message);
+      });
   };
 
   const showPasswordDoesNotMatchHint = Boolean(
@@ -56,6 +71,7 @@ export default function SignupModal({ open, onClose }: SignupProps) {
             aria-label="email"
             placeholder="email"
             type="email"
+            loading={loading}
           />
           <div>
             <Input
@@ -69,6 +85,7 @@ export default function SignupModal({ open, onClose }: SignupProps) {
               aria-label="password"
               placeholder="password"
               fullWidth
+              loading={loading}
             />
             <Input
               required
@@ -87,11 +104,17 @@ export default function SignupModal({ open, onClose }: SignupProps) {
               placeholder="confirm password"
               className="mt-[3px]"
               fullWidth
+              loading={loading}
             />
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button size="sm" type="submit" disabled={!canSubmit}>
+          <Button
+            loading={loading}
+            size="sm"
+            type="submit"
+            disabled={!canSubmit}
+          >
             Submit
           </Button>
         </Modal.Footer>

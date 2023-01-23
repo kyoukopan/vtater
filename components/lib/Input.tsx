@@ -51,7 +51,9 @@ interface InputProps extends Partial<NUIInputProps> {
   valid?: boolean;
   /** Triggers validation - useful when you don't want it to continuously display validation feedback */
   validateNow?: boolean;
+  /** A hint to display - used for failed validation hints too */
   hint?: string | undefined;
+  loading?: boolean;
 }
 /**
  * Input component
@@ -63,6 +65,8 @@ export default function Input({
   valid = true,
   validateNow = false,
   hint = undefined,
+  loading = false,
+  disabled = false,
   ...props
 }: InputProps) {
   let InputComponent: InputType = NUIInput;
@@ -89,6 +93,7 @@ export default function Input({
         color={color}
         helperColor={color}
         helperText={hint || undefined}
+        disabled={loading || disabled}
         {...props}
       />
     );
@@ -99,6 +104,7 @@ export default function Input({
       clearable={clearable}
       rounded={!side}
       animated={!side}
+      disabled={loading || disabled}
       {...props}
     />
   );
