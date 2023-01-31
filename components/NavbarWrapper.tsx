@@ -2,7 +2,7 @@ import { Navbar } from "@nextui-org/react";
 import React from "react";
 import Button from "./lib/Button";
 import { useSignOut } from "react-firebase-hooks/auth";
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/common/firebase";
 import { useRouter } from "next/router";
 
 export default function NavbarWrapper({

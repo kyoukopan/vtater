@@ -1,4 +1,4 @@
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/common/firebase";
 import { Card, Modal } from "@nextui-org/react";
 import { FormEvent, useEffect, useState } from "react";
 import {
