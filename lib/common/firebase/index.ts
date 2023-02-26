@@ -3,11 +3,15 @@ import {
   FirebaseApp,
   FirebaseOptions,
   getApps,
-  initializeApp,
+  initializeApp
 } from 'firebase/app';
 // TODO: Add SDKs for Firebase products that you want to use
-import { getAuth, connectAuthEmulator, Auth } from 'firebase/auth';
-import { connectFirestoreEmulator, Firestore, getFirestore } from 'firebase/firestore';
+import { Auth, connectAuthEmulator, getAuth } from 'firebase/auth';
+import {
+  connectFirestoreEmulator,
+  Firestore,
+  getFirestore
+} from 'firebase/firestore';
 import { connectStorageEmulator, getStorage } from 'firebase/storage';
 
 // Configuration
@@ -25,7 +29,7 @@ if (!getApps().length) {
   firebaseApp = initializeApp(firebaseConfig);
 }
 export const auth: Auth = getAuth(firebaseApp);
-export const db: Firestore = getFirestore(firebaseApp);
+export const db: Firestore = getFirestore(firebaseApp as FirebaseApp);
 export const storage = getStorage(firebaseApp);
 if (
   process.env.NEXT_PUBLIC_ENV === 'development' ||
