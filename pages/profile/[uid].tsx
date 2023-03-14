@@ -1,19 +1,30 @@
 import AuthWrapper from '@/components/Auth/AuthWrapper';
-import useUser from '@/components/hooks/useUser';
+import useCurrentUser from '@/lib/hooks/useCurrentUser';
+import useUser from '@/lib/hooks/useUser';
 import Avatar from '@/components/lib/Avatar';
+import Button from '@/components/lib/Button';
 import { FieldRow } from '@/components/lib/Field';
 import Text from '@/components/lib/Text';
 import NavbarWrapper from '@/components/NavbarWrapper';
-import { Badge, Card, Container } from '@nextui-org/react';
+import { Badge, Card, Container, Grid, Image } from '@nextui-org/react';
 import { User } from 'firebase/auth';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
-export default function UserProfile() {
+export default function UserProfile({ uid }: { uid: string }) {
   const router = useRouter();
 
-  const { uid } = router.query;
-  const { userData } = useUser(uid as string);
+  const { userData, userDataLoading } = useUser(uid as string);
+  const { user: currentUser } = useCurrentUser();
 
+  const [layout, setLayout] = useState(userData?.gallery?.layout || 'grid');
+
+  useEffect(() => {
+    if (userDataLoading) return;
+    setLayout(userData?.gallery?.layout || 'grid');
+  }, [userDataLoading]);
+
+  console.log(uid);
   return (
     <AuthWrapper>
       <NavbarWrapper>
@@ -45,8 +56,30 @@ export default function UserProfile() {
               {userData?.displayName}
             </Text>
           </Card>
+          <h2>gallery</h2>
+          {currentUser?.uid === uid && (
+            <Button onPress={() => router.push('/gallery/edit')}>Update</Button>
+          )}
+          <div>
+            {userData && !userDataLoading && (
+              <Grid.Container gap={2} justify='center'>
+                {userData?.galleryUrls?.map((src: string) => (
+                  <Grid xs={layout === 'full-width' ? 12 : 4}>
+                    <Image src={src} alt='sample image' />
+                  </Grid>
+                ))}
+              </Grid.Container>
+            )}
+          </div>
         </Container>
       </NavbarWrapper>
     </AuthWrapper>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  const { uid } = context.params;
+  return {
+    props: { uid }, // will be passed to the page component as props
+  };
 }

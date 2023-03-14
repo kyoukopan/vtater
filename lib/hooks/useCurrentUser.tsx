@@ -9,7 +9,7 @@ import { useDocumentData } from 'react-firebase-hooks/firestore';
 export default function useCurrentUser() {
   const [user, userLoading] = useAuthState(auth);
   const [userData, userDataLoading] = useDocumentData(
-    user && doc(db, '/users', user.uid)
+    user && doc(db, 'users', user.uid)
   );
   return { user, userData, userLoading, userDataLoading };
 }

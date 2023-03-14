@@ -9,7 +9,7 @@ import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { doc } from 'firebase/firestore';
 import { auth, db } from '@/lib/common/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import useUser from '@/components/hooks/useCurrentUser';
+import useUser from '@/lib/hooks/useCurrentUser';
 
 const lightTheme = createTheme({
   type: 'light',

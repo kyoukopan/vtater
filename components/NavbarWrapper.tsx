@@ -3,7 +3,7 @@ import React, { Key } from 'react';
 import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/common/firebase';
 import { useRouter } from 'next/router';
-import useCurrentUser from './hooks/useCurrentUser';
+import useCurrentUser from '../lib/hooks/useCurrentUser';
 
 export default function NavbarWrapper({
   children,
