@@ -2,16 +2,34 @@ import '@/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.min.css';
 import type { AppProps } from 'next/app';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { NextUIProvider } from '@nextui-org/react';
+import { NextUIProvider, createTheme } from '@nextui-org/react';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { useDocumentData } from 'react-firebase-hooks/firestore';
+import { doc } from 'firebase/firestore';
+import { auth, db } from '@/lib/common/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
+
+const lightTheme = createTheme({
+  type: 'light',
+});
+const darkTheme = createTheme({
+  type: 'dark',
+});
 
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
+  const [user] = useAuthState(auth);
+  const [userData] = useDocumentData(user && doc(db, '/users', user.uid));
+
+  const userConfig = userData?.config;
+
   return (
     <QueryClientProvider client={queryClient}>
-      <NextUIProvider>
+      <NextUIProvider
+        theme={userConfig?.theme === 'dark' ? darkTheme : lightTheme}
+      >
         {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <ToastContainer
           style={{ zIndex: 10500 }}

@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import {
-  Avatar,
   Badge,
   Card,
   Container,
   Loading,
   Modal,
   Switch,
+  Tooltip,
 } from '@nextui-org/react';
 import BrandHeader from '@/components/lib/BrandHeader';
 import AuthWrapper from '@/components/Auth/AuthWrapper';
@@ -31,12 +30,13 @@ import { FieldRow } from '@/components/lib/Field';
 import { User } from 'firebase/auth';
 import Button, { IconButton } from '@/components/lib/Button';
 import { toast } from 'react-toastify';
-import { faPen } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faSun } from '@fortawesome/free-solid-svg-icons';
 import { useUploadFile } from 'react-firebase-hooks/storage';
 import { ref } from 'firebase/storage';
 import { useRouter } from 'next/router';
 import Input from '@/components/lib/Input';
-import { deepEqual } from 'assert';
+import Avatar from '@/components/lib/Avatar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function EmailWithVerification({
   user: { email, emailVerified = false },
@@ -132,6 +132,7 @@ export default function Profile() {
   const [ageRange, setAgeRange] = useState('');
   const [birthWeek, setBirthWeek] = useState('');
   const [pronouns, setPronouns] = useState('');
+  const [theme, setTheme] = useState('light');
 
   const [uploadFile, uploading, snapshot] = useUploadFile();
   const [updateProfile, updatingProfile] = useUpdateProfile(auth);
@@ -156,6 +157,7 @@ export default function Profile() {
       setAgeRange(data?.ageRange || '');
       setBirthWeek(data?.birthWeek || '');
       setPronouns(data?.pronouns || '');
+      setTheme(data?.config?.theme || 'light');
       setLoading(false);
     }
     run();
@@ -235,6 +237,14 @@ export default function Profile() {
         toast.error('Unable to send. Please try again later');
       });
   }
+
+  function toggleDarkMode() {
+    if (!docRef) return;
+    void updateDoc(docRef, {
+      config: { theme: theme === 'light' ? 'dark' : 'light' },
+    });
+    setTheme('dark');
+  }
   return (
     <AuthWrapper>
       <NavbarWrapper>
@@ -252,22 +262,8 @@ export default function Profile() {
               <div>
                 <div className='relative max-w-fit'>
                   <Avatar
-                    size='xl'
-                    text={
-                      user?.displayName
-                        ? user.displayName.slice(0, 2)
-                        : user?.email?.slice(0, 2)
-                    }
-                    src={previewSrc || user?.photoURL || undefined}
-                    className='mr-4 inline-flex hover:shadow-md'
-                    onClick={() => setUploadAvatarVisible(true)}
-                    pointer
-                  />
-                  <IconButton
-                    className='absolute bottom-0.5 right-4 z-[350]'
-                    size={20}
-                    type='button'
-                    icon={faPen}
+                    customSrc={previewSrc}
+                    editButton
                     onPress={() => setUploadAvatarVisible(true)}
                   />
                 </div>
@@ -345,17 +341,41 @@ export default function Profile() {
                 <Text h4 className='mt-4'>
                   customization...
                 </Text>
-                <FieldRow label='theme' content='[TODO]' />
+                <FieldRow
+                  label='dark mode'
+                  content={
+                    <Switch
+                      checked={theme === 'dark'}
+                      onChange={toggleDarkMode}
+                      color='default'
+                      iconOn={<FontAwesomeIcon icon={faSun} />}
+                    />
+                  }
+                />
               </div>
             </Card>
-            <IconButton
+            <Tooltip
+              isDisabled={!editing}
+              visible={editing}
+              trigger='click'
+              keepMounted
               className='absolute -top-2 -right-2'
-              size={64}
-              type='button'
-              color={editing ? 'error' : 'default'}
-              icon={faPen}
-              onPress={() => setEditing((val) => !val)}
-            />
+              content={
+                <span>
+                  you're in edit mode!
+                  <br />
+                  click again to save
+                </span>
+              }
+            >
+              <IconButton
+                size={64}
+                type='button'
+                color={editing ? 'error' : 'default'}
+                icon={faPen}
+                onPress={() => setEditing((val) => !val)}
+              />
+            </Tooltip>
           </div>
         </Container>
         <Modal
@@ -369,14 +389,9 @@ export default function Profile() {
           <Modal.Body className='h-48'>
             <div className='flex items-center'>
               <Avatar
-                className='mr-8 h-40 w-40 flex-shrink-0'
-                text={
-                  user?.displayName
-                    ? user.displayName.slice(0, 2)
-                    : user?.email?.slice(0, 2)
-                }
+                className='pointer-events-none mr-8 h-40 w-40 flex-shrink-0'
                 css={{ '.nextui-avatar-text': { fontSize: 64 } }}
-                src={previewSrc || user?.photoURL || undefined}
+                customSrc={previewSrc}
               />
               <Text h4 weight='normal'>
                 {!user?.photoURL
