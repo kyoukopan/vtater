@@ -11,7 +11,7 @@ export default function Home() {
     if (!user) {
       router.replace("/login");
     } else {
-      router.replace("/profile");
+      router.replace("/account");
     }
   }, [loading, router, user]);
 

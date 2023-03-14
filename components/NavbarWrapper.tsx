@@ -30,8 +30,8 @@ export default function NavbarWrapper({
 
   function handleDropdownSelect(key: Key) {
     switch (key) {
-      case 'profile':
-        router.push('/profile');
+      case 'account':
+        router.push('/account');
         break;
       case 'signOut':
         handleSignout();
@@ -69,8 +69,8 @@ export default function NavbarWrapper({
               />
             </Dropdown.Trigger>
             <Dropdown.Menu onAction={handleDropdownSelect}>
-              <Dropdown.Item key='profile' variant='light'>
-                Profile
+              <Dropdown.Item key='account' variant='light'>
+                Account
               </Dropdown.Item>
               <Dropdown.Item
                 key='signOut'
