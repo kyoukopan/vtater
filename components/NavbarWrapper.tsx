@@ -3,6 +3,7 @@ import React, { Key } from 'react';
 import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/common/firebase';
 import { useRouter } from 'next/router';
+import useCurrentUser from './hooks/useCurrentUser';
 
 export default function NavbarWrapper({
   children,
@@ -10,7 +11,7 @@ export default function NavbarWrapper({
   children: React.ReactNode;
 }) {
   const [signOut, loading, error] = useSignOut(auth);
-  const [user] = useAuthState(auth);
+  const { userData } = useCurrentUser();
   const router = useRouter();
   const activePage = router.pathname;
 
@@ -30,6 +31,9 @@ export default function NavbarWrapper({
 
   function handleDropdownSelect(key: Key) {
     switch (key) {
+      case 'profile':
+        router.push('/profile');
+        break;
       case 'account':
         router.push('/account');
         break;
@@ -59,16 +63,19 @@ export default function NavbarWrapper({
               <NUIAvatar
                 size='xl'
                 text={
-                  user?.displayName
-                    ? user.displayName.slice(0, 2)
-                    : user?.email?.slice(0, 2)
+                  userData?.displayName
+                    ? userData.displayName.slice(0, 2)
+                    : userData?.email?.slice(0, 2)
                 }
-                src={user?.photoURL || undefined}
+                src={userData?.avatarURL || undefined}
                 className='mr-4 inline-flex hover:shadow-md'
                 pointer
               />
             </Dropdown.Trigger>
             <Dropdown.Menu onAction={handleDropdownSelect}>
+              <Dropdown.Item key='profile' variant='light'>
+                Profile
+              </Dropdown.Item>
               <Dropdown.Item key='account' variant='light'>
                 Account
               </Dropdown.Item>

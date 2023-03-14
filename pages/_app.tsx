@@ -9,6 +9,7 @@ import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { doc } from 'firebase/firestore';
 import { auth, db } from '@/lib/common/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import useUser from '@/components/hooks/useCurrentUser';
 
 const lightTheme = createTheme({
   type: 'light',
@@ -20,8 +21,7 @@ const darkTheme = createTheme({
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [user] = useAuthState(auth);
-  const [userData] = useDocumentData(user && doc(db, '/users', user.uid));
+  const { userData } = useUser();
 
   const userConfig = userData?.config;
 

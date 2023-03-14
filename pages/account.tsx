@@ -14,7 +14,6 @@ import Text from '@/components/lib/Text';
 import {
   useAuthState,
   useSendEmailVerification,
-  useUpdateProfile,
 } from 'react-firebase-hooks/auth';
 import { useDocument, useDocumentData } from 'react-firebase-hooks/firestore';
 import {
@@ -65,20 +64,21 @@ function EmailWithVerification({
 function WelcomeModal({
   visible,
   onClose,
-  user,
+  updateUsernameInDb,
 }: {
   visible: boolean;
   onClose: () => void;
-  user: User;
+  updateUsernameInDb: Function;
 }) {
   const [displayName, setDisplayName] = useState('');
-  const [updateProfile, updateProfileLoading] = useUpdateProfile(auth);
 
   async function handleSubmit() {
     if (!displayName) return;
-    const success = await updateProfile({ displayName });
-    if (!success) {
+    try {
+      await updateUsernameInDb(displayName);
+    } catch {
       toast.error('Could not update profile, try again later');
+      return;
     }
     onClose();
   }
@@ -97,18 +97,12 @@ function WelcomeModal({
           fullWidth
           css={{ marginBottom: '$4' }}
           value={displayName}
-          loading={updateProfileLoading}
           onChange={(e) => setDisplayName(e.target?.value)}
         />
         <Text>don't worry if someone's taken it already</Text>
       </Modal.Body>
       <Modal.Footer justify='flex-start'>
-        <Button
-          wide
-          disabled={!displayName}
-          loading={updateProfileLoading}
-          onPress={handleSubmit}
-        >
+        <Button wide disabled={!displayName} onPress={handleSubmit}>
           done
         </Button>
       </Modal.Footer>
@@ -117,7 +111,7 @@ function WelcomeModal({
 }
 
 export default function Profile() {
-  const [user, userLoading] = useAuthState(auth);
+  const [user] = useAuthState(auth);
   const [verifySent, setVerifySent] = useState(false);
   const [sendEmailVerification, sending] = useSendEmailVerification(auth);
   const [editing, setEditing] = useState(false);
@@ -127,19 +121,19 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(Symbol());
 
-  const [fetchedProfileData, setFetchedProfileData] = useState<DocumentData>();
   const [docRef, setDocRef] = useState<DocumentReference>();
   const [ageRange, setAgeRange] = useState('');
   const [birthWeek, setBirthWeek] = useState('');
   const [pronouns, setPronouns] = useState('');
   const [theme, setTheme] = useState('light');
+  const [displayName, setDisplayName] = useState('');
 
-  const [uploadFile, uploading, snapshot] = useUploadFile();
-  const [updateProfile, updatingProfile] = useUpdateProfile(auth);
+  const [uploadFile, uploading] = useUploadFile();
 
   const router = useRouter();
-  const [showWelcome, setShowWelcome] = useState(Boolean(router.query));
-
+  const [showWelcome, setShowWelcome] = useState(
+    router.query.welcome === 'true'
+  );
   useEffect(() => {
     async function run() {
       if (!user) {
@@ -153,11 +147,11 @@ export default function Profile() {
         return;
       }
       const data = resp.data();
-      setFetchedProfileData(data);
       setAgeRange(data?.ageRange || '');
       setBirthWeek(data?.birthWeek || '');
       setPronouns(data?.pronouns || '');
       setTheme(data?.config?.theme || 'light');
+      setDisplayName(data?.displayName || '');
       setLoading(false);
     }
     run();
@@ -192,7 +186,7 @@ export default function Profile() {
   }, [file]);
 
   function handleUpload() {
-    if (!file) return;
+    if (!file || !docRef) return;
     const storageRef = ref(
       storage,
       `users/avatars/${user?.email}--${file.name}`
@@ -205,17 +199,16 @@ export default function Profile() {
           setFile(null);
           return;
         }
-        updateProfile({
-          photoURL: `http://localhost:9199/${result.ref.bucket}/${result.ref?.fullPath}`,
-        }).then((success) => {
-          if (success) {
-            toast.success("Updated avatar. Lookin' good 😏");
-            setPreviewSrc(
-              `http://localhost:9199/${result.ref.bucket}/${result.ref?.fullPath}`
-            );
-            setUploadAvatarVisible(false);
-            setFile(null);
-          }
+        updateDoc(docRef, {
+          avatarURL: `http://localhost:9199/${result.ref.bucket}/${result.ref?.fullPath}`,
+        }).then(() => {
+          toast.success("Updated avatar. Lookin' good 😏");
+          setPreviewSrc(
+            `http://localhost:9199/${result.ref.bucket}/${result.ref?.fullPath}`
+          );
+          setUploadAvatarVisible(false);
+          setFile(null);
+          setRefresh(Symbol());
         });
       })
       .catch(() => {
@@ -250,13 +243,16 @@ export default function Profile() {
       <NavbarWrapper>
         {user && (
           <WelcomeModal
-            visible={showWelcome && !user?.displayName}
+            visible={showWelcome && !displayName}
             onClose={() => setShowWelcome(false)}
-            user={user}
+            updateUsernameInDb={async (displayName: string) => {
+              if (!docRef) return false;
+              await updateDoc(docRef, { displayName });
+              return true;
+            }}
           />
         )}
         <Container xs as='main' className='mt-32'>
-          <BrandHeader />
           <div className='relative'>
             <Card variant='bordered' className='my-8 space-y-2 py-8 px-8'>
               <div>
@@ -265,14 +261,15 @@ export default function Profile() {
                     customSrc={previewSrc}
                     editButton
                     onPress={() => setUploadAvatarVisible(true)}
+                    uid={user?.uid}
                   />
                 </div>
                 <Text h2 inline className='mb-4'>
-                  your profile{user?.displayName && `, ${user?.displayName}`}.
+                  your account{displayName && `, ${displayName}`}.
                 </Text>
               </div>
               <div className='space-y-1'>
-                <Text h4>account stuff...</Text>
+                <Text h4>important stuff...</Text>
                 <FieldRow label='display name' content={user?.displayName} />
                 <FieldRow
                   label='email'
@@ -389,9 +386,11 @@ export default function Profile() {
           <Modal.Body className='h-48'>
             <div className='flex items-center'>
               <Avatar
-                className='pointer-events-none mr-8 h-40 w-40 flex-shrink-0'
-                css={{ '.nextui-avatar-text': { fontSize: 64 } }}
+                // @ts-ignore
+                size='huge'
+                className='pointer-events-none mr-8 flex-shrink-0'
                 customSrc={previewSrc}
+                uid={user?.uid}
               />
               <Text h4 weight='normal'>
                 {!user?.photoURL
@@ -423,7 +422,7 @@ export default function Profile() {
               bordered={!file}
               className={!file ? 'pointer-events-none' : ''}
               onPress={() => handleUpload()}
-              loading={uploading || updatingProfile}
+              loading={uploading}
             >
               {file ? 'save image' : 'select file'}
             </Button>

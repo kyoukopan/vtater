@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (loading || error) return;
-    if (user) {
+    if (user && !signupVisible) {
       router.replace("/profile");
     }
   }, [loading, router, user]);

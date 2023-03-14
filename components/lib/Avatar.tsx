@@ -2,6 +2,7 @@ import { auth } from '@/lib/common/firebase';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { Avatar as NUIAvatar, AvatarProps } from '@nextui-org/react';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import useUser from '../hooks/useUser';
 import { IconButton } from './Button';
 
 /**
@@ -10,16 +11,24 @@ import { IconButton } from './Button';
 export default function Avatar({
   customSrc,
   editButton = false,
+  size = 'xl',
   onPress = () => {},
+  className = '',
+  uid,
+  ...props
 }: {
+  /** If null, uses current user's avatar */
+  uid?: string;
   /** Override the image source */
-  customSrc: string;
+  customSrc?: string;
   /** Show edit button */
   editButton?: boolean;
   /** For clicking avatar or the optional edit button */
   onPress?: () => void;
-} & AvatarProps) {
-  const [user] = useAuthState(auth);
+  size?: 'huge' | AvatarProps['size'];
+  className?: string;
+} & Partial<AvatarProps>) {
+  const { userData: user } = useUser(uid);
 
   return (
     <>
@@ -30,10 +39,18 @@ export default function Avatar({
             ? user.displayName.slice(0, 2)
             : user?.email?.slice(0, 2)
         }
-        src={customSrc || user?.photoURL || undefined}
-        className='mr-4 inline-flex hover:shadow-md'
+        src={customSrc || user?.avatarURL || undefined}
+        className={`mr-4 inline-flex hover:shadow-md ${
+          size === 'huge' ? 'h-40 w-40' : ''
+        } ${className}`}
+        css={
+          size === 'huge'
+            ? { '.nextui-avatar-text': { fontSize: 64 } }
+            : undefined
+        }
         onClick={onPress}
         pointer
+        {...props}
       />
       {editButton && (
         <IconButton

@@ -30,7 +30,8 @@ export default function SignupModal({ open, onClose }: SignupProps) {
       async onSuccess() {
         toast.success('Welcome!');
         await signInWithEmailAndPassword(auth, email, password);
-        router.replace('/profile?welcome');
+        router.replace('/account?welcome=true');
+        return;
       },
       onError() {
         toast.error('Unable to sign up. Please try again.');
