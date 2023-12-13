@@ -1,14 +1,21 @@
-import { auth } from "@/lib/common/firebase";
-import { Card, Modal } from "@nextui-org/react";
-import { FormEvent, useEffect, useState } from "react";
+import { auth } from '@/lib/common/firebase';
+import {
+  Card,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from '@nextui-org/react';
+import { FormEvent, useEffect, useState } from 'react';
 import {
   useSendPasswordResetEmail,
   useSignInWithEmailAndPassword,
-} from "react-firebase-hooks/auth";
-import { toast } from "react-toastify";
-import Button from "../lib/Button";
-import Input from "../lib/Input";
-import Text from "../lib/Text";
+} from 'react-firebase-hooks/auth';
+import { toast } from 'react-toastify';
+import Button from '../lib/Button';
+import Header from '../lib/Header';
+import Input from '../lib/Input';
+import Text from '../lib/Text';
 
 function PasswordResetLinkAndModal({
   email,
@@ -26,40 +33,40 @@ function PasswordResetLinkAndModal({
     sendPasswordResetEmail(email)
       .then((success) => {
         if (success) {
-          toast.success("A password reset email has been sent");
+          toast.success('A password reset email has been sent');
           setModalOpen(false);
         }
       })
       .catch(() => {
-        toast.error("Unable to send password reset email.");
-        setEmail("");
+        toast.error('Unable to send password reset email.');
+        setEmail('');
       });
   }
 
   useEffect(() => {
     if (error)
       toast.error(
-        "Unable to send password reset email. Please ensure email is the same one as on your account."
+        'Unable to send password reset email. Please ensure email is the same one as on your account.'
       );
-    setEmail("");
+    setEmail('');
   }, [error, setEmail]);
 
   return (
     <>
-      <Button size="sm" link onPress={() => setModalOpen(true)}>
+      <Button size='sm' link onPress={() => setModalOpen(true)}>
         forgot your password?
       </Button>
       <Modal
         closeButton
-        blur
-        open={modalOpen}
+        backdrop='blur'
+        isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
       >
         <form onSubmit={(e) => handlePasswordReset(e)}>
-          <Modal.Header justify="flex-start">
-            <Text h3>password reset</Text>
-          </Modal.Header>
-          <Modal.Body className="h-48 space-y-8" autoMargin={false}>
+          <ModalHeader className='justify-start'>
+            <Header h={3}>password reset</Header>
+          </ModalHeader>
+          <ModalBody className='h-48 space-y-8'>
             <Text>
               Please enter the email associated with your account.
               <br />
@@ -69,17 +76,17 @@ function PasswordResetLinkAndModal({
               required
               value={email}
               onChange={(e) => setEmail(e.target?.value)}
-              aria-label="email-for-password-reset"
-              placeholder="email"
-              type="email"
+              aria-label='email-for-password-reset'
+              placeholder='email'
+              type='email'
               loading={sending}
             />
-          </Modal.Body>
-          <Modal.Footer>
-            <Button loading={sending} size="sm" type="submit" disabled={!email}>
+          </ModalBody>
+          <ModalFooter>
+            <Button loading={sending} size='sm' type='submit' disabled={!email}>
               send email
             </Button>
-          </Modal.Footer>
+          </ModalFooter>
         </form>
       </Modal>
     </>
@@ -87,13 +94,13 @@ function PasswordResetLinkAndModal({
 }
 
 export default function LoginCard({ className }: { className: string }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [signInWithEmailAndPassword, , loading] =
     useSignInWithEmailAndPassword(auth);
 
   const handleChange = (value: string, field: string) => {
-    if (field === "email") {
+    if (field === 'email') {
       setEmail(value);
     } else {
       setPassword(value);
@@ -107,45 +114,45 @@ export default function LoginCard({ className }: { className: string }) {
     if (!canSubmit) return;
     signInWithEmailAndPassword(email, password)
       .then((userResp) => {
-        if (!userResp) toast.error("Unable to log in. Please try again.");
-        setPassword("");
+        if (!userResp) toast.error('Unable to log in. Please try again.');
+        setPassword('');
       })
       .catch(() => {
-        toast.error("Unable to log in. Please try again.");
+        toast.error('Unable to log in. Please try again.');
       });
   };
 
   return (
     <Card
-      as="form"
+      as='form'
       className={`space-y-4 py-8 px-8 ${className}`}
       onSubmit={(e) => handleSubmit(e)}
     >
-      <Text h3 className="mb-4">
+      <Header h={3} className='mb-4'>
         sign in
-      </Text>
+      </Header>
       <Input
-        aria-label="email"
+        aria-label='email'
         value={email}
-        onChange={(e) => handleChange(e.target.value, "email")}
+        onChange={(e) => handleChange(e.target.value, 'email')}
         required
-        placeholder="email"
-        type="email"
+        placeholder='email'
+        type='email'
         loading={loading}
       />
       <Input
         password
-        aria-label="password"
+        aria-label='password'
         value={password}
         valid={canSubmit}
         required
-        onChange={(e) => handleChange(e.target.value, "password")}
-        placeholder="password"
+        onChange={(e) => handleChange(e.target.value, 'password')}
+        placeholder='password'
         loading={loading}
       />
-      <div className="flex justify-between">
+      <div className='flex justify-between'>
         <PasswordResetLinkAndModal email={email} setEmail={setEmail} />
-        <Button disabled={!canSubmit} loading={loading} type="submit" size="sm">
+        <Button disabled={!canSubmit} loading={loading} type='submit' size='sm'>
           continue
         </Button>
       </div>

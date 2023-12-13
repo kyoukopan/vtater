@@ -1,42 +1,40 @@
 import {
   Input as NUIInput,
   InputProps as NUIInputProps,
-  styled,
-} from "@nextui-org/react";
+} from '@nextui-org/react';
 
 // ===========
 // STYLES
 // ===========
 
-const TopInput = styled(NUIInput, {
-  "& *": { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
-});
-const TopInputPassword = styled(NUIInput.Password, {
-  "& *": { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
-});
-const BottomInput = styled(NUIInput, {
-  "& *": { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
-});
-const BottomInputPassword = styled(NUIInput.Password, {
-  "& *": { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
-});
+// const TopInput = styled(NUIInput, {
+//   '& *': { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
+// });
+// const TopInputPassword = styled(NUIInput, {
+//   '& *': { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 },
+// });
+// const BottomInput = styled(NUIInput, {
+//   '& *': { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
+// });
+// const BottomInputPassword = styled(NUIInput, {
+//   '& *': { borderTopLeftRadius: 0, borderTopRightRadius: 0 },
+// });
 
 // =========
 // CONSTS
 // =========
 
-const componentMap = {
-  top: TopInput,
-  bottom: BottomInput,
-  topPassword: TopInputPassword,
-  bottomPassword: BottomInputPassword,
-};
+// const componentMap = {
+//   top: TopInput,
+//   bottom: BottomInput,
+//   topPassword: TopInputPassword,
+//   bottomPassword: BottomInputPassword,
+// };
 
 type InputType =
   | typeof NUIInput
-  | typeof NUIInput.Password
-  | typeof TopInput
-  | typeof TopInputPassword;
+  // | typeof TopInput
+  // | typeof TopInputPassword;
 
 // =========
 // MAIN
@@ -46,7 +44,7 @@ interface InputProps extends Partial<NUIInputProps> {
   /** A password field */
   password?: boolean;
   /** If stacking two inputs together, you can specify a top and bottom */
-  side?: undefined | "top" | "bottom";
+  side?: undefined | 'top' | 'bottom';
   /** For input validation */
   valid?: boolean;
   /** Triggers validation - useful when you don't want it to continuously display validation feedback */
@@ -59,7 +57,7 @@ interface InputProps extends Partial<NUIInputProps> {
  * Input component
  */
 export default function Input({
-  clearable = true,
+  isClearable = true,
   password = false,
   side = undefined,
   valid = true,
@@ -70,25 +68,22 @@ export default function Input({
   ...props
 }: InputProps) {
   let InputComponent: InputType = NUIInput;
-  if (password) {
-    InputComponent = NUIInput.Password;
-    if (side) {
-      InputComponent = componentMap[`${side}Password`];
-    }
+  if (password && side) {
+    InputComponent = NUIInput // TODO: update componentMap[`${side}Password`];
   } else if (side) {
-    InputComponent = componentMap[side];
+    InputComponent = NUIInput // componentMap[side];
   }
 
-  const color = !valid && validateNow ? "error" : "default";
+  const color = !valid && validateNow ? 'danger' : 'default';
 
   if (password) {
     return (
       <InputComponent
         bordered
-        clearable={clearable}
+        isClearable={isClearable}
         rounded={!side}
         animated={!side}
-        type="password"
+        type='password'
         status={color}
         color={color}
         helperColor={color}
@@ -101,7 +96,7 @@ export default function Input({
   return (
     <InputComponent
       bordered
-      clearable={clearable}
+      isClearable={isClearable}
       rounded={!side}
       animated={!side}
       disabled={loading || disabled}

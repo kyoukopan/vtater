@@ -1,40 +1,47 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import { Text as NUIText, TextProps as NUITextProps } from "@nextui-org/react";
+import {
+  CSSProperties,
+  DetailedHTMLProps,
+  HTMLAttributes,
+  ReactNode,
+  createElement,
+} from 'react';
 
-interface TextProps extends NUITextProps {
+interface TextProps
+  extends DetailedHTMLProps<
+    HTMLAttributes<HTMLParagraphElement>,
+    HTMLParagraphElement
+  > {
   /** Centers the text */
   center?: boolean;
   /** Inline text instead of block text */
   inline?: boolean;
   /** Display ellipsis if cut off */
   ellipsis?: boolean;
+  as?: keyof HTMLElementTagNameMap;
 }
 /**
- * Typography. Currently a wrapper of NUI Text.
+ * Typography
  */
 export default function Text({
   children,
   center = false,
   inline = false,
   ellipsis = false,
-  css,
+  style,
+  as = 'p',
   ...props
 }: TextProps) {
-  const styles = {
+  const styles: CSSProperties = {
     marginBottom: 0,
-    ...(center && { textAlign: "center" }),
-    ...(inline && { display: "inline-block" }),
+    ...(center && { textAlign: 'center' }),
+    ...(inline && { display: 'inline-block' }),
     ...(ellipsis && {
-      overflow: "hidden",
-      whiteSpace: "nowrap",
-      textOverflow: "ellipsis",
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
     }),
-    ...css,
+    ...style,
   };
 
-  return (
-    <NUIText css={styles} {...props}>
-      {children}
-    </NUIText>
-  );
+  return createElement(as, { style: styles, ...props }, children);
 }

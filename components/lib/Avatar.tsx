@@ -11,7 +11,7 @@ import { IconButton } from './Button';
 export default function Avatar({
   customSrc,
   editButton = false,
-  size = 'xl',
+  size = 'lg',
   onPress = () => {},
   className = '',
   uid,
@@ -25,31 +25,25 @@ export default function Avatar({
   editButton?: boolean;
   /** For clicking avatar or the optional edit button */
   onPress?: () => void;
-  size?: 'huge' | AvatarProps['size'];
+  size?: 'huge' | '2xl' | AvatarProps['size'];
   className?: string;
-} & Partial<AvatarProps>) {
+}) {
   const { userData: user } = useUser(uid);
 
   return (
     <>
       <NUIAvatar
-        size='xl'
-        text={
+        size='lg'
+        name={
           user?.displayName
             ? user.displayName.slice(0, 2)
             : user?.email?.slice(0, 2)
         }
         src={customSrc || user?.avatarURL || undefined}
-        className={`mr-4 inline-flex hover:shadow-md ${
-          size === 'huge' ? 'h-40 w-40' : ''
+        className={`mr-4 inline-flex cursor-pointer hover:shadow-md ${
+          size === 'huge' ? 'h-40 w-40' : size === '2xl' ? 'h-24 w-24' : ''
         } ${className}`}
-        css={
-          size === 'huge'
-            ? { '.nextui-avatar-text': { fontSize: 64 } }
-            : undefined
-        }
         onClick={onPress}
-        pointer
         {...props}
       />
       {editButton && (

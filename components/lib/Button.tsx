@@ -1,11 +1,10 @@
-/* eslint-disable react/jsx-props-no-spreading */
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button as NUIButton,
   ButtonProps as NUIButtonProps,
-  Loading,
-} from "@nextui-org/react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+  Spinner,
+} from '@nextui-org/react';
 
 interface ButtonProps extends NUIButtonProps {
   /** A button with 100% width */
@@ -22,7 +21,7 @@ interface ButtonProps extends NUIButtonProps {
  */
 export default function Button({
   children,
-  css,
+  style,
   wide = false,
   link = false,
   loading = false,
@@ -31,10 +30,10 @@ export default function Button({
 }: ButtonProps) {
   const styles = {
     minWidth: 0,
-    width: wide ? "100%" : "fit-content",
+    width: wide ? '100%' : 'fit-content',
     paddingLeft: link ? 0 : 24,
     paddingRight: link ? 0 : 24,
-    ...css,
+    ...style,
   };
   return (
     <NUIButton
@@ -44,7 +43,7 @@ export default function Button({
       css={styles}
       {...props}
     >
-      {loading ? <Loading type="points" color="currentColor" /> : children}
+      {loading ? <Spinner /> : children}
     </NUIButton>
   );
 }
@@ -56,21 +55,23 @@ export function IconButton({
   ...props
 }: { size?: number; icon: IconDefinition; rotate?: boolean } & Omit<
   ButtonProps,
-  "size" | "icon"
+  'size' | 'icon'
 >) {
   return (
     <Button
-      css={{
-        display: "inline-flex",
+      style={{
+        display: 'inline-flex',
         height: size,
         width: size,
         borderRadius: size * 0.4,
         padding: 0,
-        ...(rotate && { transform: "rotate(5deg)" }),
+        ...(rotate && { transform: 'rotate(5deg)' }),
         fontSize: (size / 5) * 2,
       }}
-      icon={<FontAwesomeIcon icon={icon} />}
+      isIconOnly
       {...props}
-    />
+    >
+      <FontAwesomeIcon icon={icon} />
+    </Button>
   );
 }

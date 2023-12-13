@@ -1,15 +1,14 @@
-import { FormElement, Modal } from '@nextui-org/react';
-import { ChangeEvent, FormEvent, useState } from 'react';
 import { auth } from '@/lib/common/firebase';
-import { useRouter } from 'next/router';
-import { toast } from 'react-toastify';
-import { useMutation } from 'react-query';
+import { Modal, ModalBody, ModalFooter, ModalHeader } from '@nextui-org/react';
 import axios from 'axios';
-import Button from '../lib/Button';
-import Input from '../lib/Input';
-import Text from '../lib/Text';
-import { SignupResp } from '@/pages/api/users/signup';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useRouter } from 'next/router';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import { useMutation } from 'react-query';
+import { toast } from 'react-toastify';
+import Button from '../lib/Button';
+import Header from '../lib/Header';
+import Input from '../lib/Input';
 
 interface SignupProps {
   /** Is the signup modal visible? */
@@ -25,7 +24,7 @@ export default function SignupModal({ open, onClose }: SignupProps) {
   const router = useRouter();
   const signup = useMutation(
     (userData: { email: string; password: string }) =>
-      axios.post<SignupResp>('/api/users/signup', userData),
+      axios.post('/api/users/signup', userData),
     {
       async onSuccess() {
         toast.success('Welcome!');
@@ -46,7 +45,10 @@ export default function SignupModal({ open, onClose }: SignupProps) {
   );
   const canSubmit = email && passwordFieldsValid;
 
-  const handleChangeValue = (e: ChangeEvent<FormElement>, field: string) => {
+  const handleChangeValue = (
+    e: ChangeEvent<HTMLInputElement>,
+    field: string
+  ) => {
     let set = setEmail;
     switch (field) {
       case 'password':
@@ -72,12 +74,12 @@ export default function SignupModal({ open, onClose }: SignupProps) {
   );
 
   return (
-    <Modal closeButton blur open={open} onClose={onClose}>
+    <Modal closeButton backdrop='blur' isOpen={open} onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <Modal.Header justify='flex-start'>
-          <Text h3>sign up</Text>
-        </Modal.Header>
-        <Modal.Body className='h-48 space-y-8' autoMargin={false}>
+        <ModalHeader className='justify-start'>
+          <Header h={3}>sign up</Header>
+        </ModalHeader>
+        <ModalBody className='h-48 space-y-8'>
           <Input
             required
             value={email}
@@ -121,8 +123,8 @@ export default function SignupModal({ open, onClose }: SignupProps) {
               loading={signup.isLoading}
             />
           </div>
-        </Modal.Body>
-        <Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
           <Button
             loading={signup.isLoading}
             size='sm'
@@ -131,7 +133,7 @@ export default function SignupModal({ open, onClose }: SignupProps) {
           >
             submit
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </form>
     </Modal>
   );

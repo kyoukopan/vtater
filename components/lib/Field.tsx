@@ -1,6 +1,5 @@
-import { Col, Row } from "@nextui-org/react";
-import { ReactNode } from "react";
-import Text from "./Text";
+import { ReactNode } from 'react';
+import Text from './Text';
 
 interface FieldRowProps {
   label: string;
@@ -17,21 +16,25 @@ interface FieldRowProps {
 // eslint-disable-next-line import/prefer-default-export
 export function FieldRow({
   label,
-  content = "",
+  content = '',
   labelSpan = 3,
   showNull = true,
 }: FieldRowProps) {
-  const contentExists = content !== "" && content != null;
+  const contentExists = content !== '' && content != null;
   return (
-    <Row>
-      <Col span={labelSpan}>
-        <Text weight="semibold">{label}</Text>
-      </Col>
-      <Col span={12 - labelSpan}>
-        {!contentExists && showNull ? <Text color="$gray600">n/a</Text> : ""}
+    <div className='flex'>
+      <div>
+        <Text style={{ fontWeight: 'semibold' }}>{label}</Text>
+      </div>
+      <div>
+        {!contentExists && showNull ? <Text color='$gray600'>n/a</Text> : ''}
         {contentExists &&
-          (typeof content === "string" ? <Text ellipsis>{content}</Text> : content)}
-      </Col>
-    </Row>
+          (typeof content === 'string' ? (
+            <Text ellipsis>{content}</Text>
+          ) : (
+            content
+          ))}
+      </div>
+    </div>
   );
 }

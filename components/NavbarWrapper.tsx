@@ -1,8 +1,18 @@
-import { Dropdown, Navbar, Avatar as NUIAvatar } from '@nextui-org/react';
-import React, { Key } from 'react';
-import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/common/firebase';
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Link,
+  Navbar,
+  NavbarContent,
+  NavbarItem,
+  Avatar as NUIAvatar,
+} from '@nextui-org/react';
 import { useRouter } from 'next/router';
+import React, { Key } from 'react';
+import { useSignOut } from 'react-firebase-hooks/auth';
 import useCurrentUser from '../lib/hooks/useCurrentUser';
 
 export default function NavbarWrapper({
@@ -46,48 +56,49 @@ export default function NavbarWrapper({
   return (
     <>
       <Navbar>
-        <Navbar.Content className='mx-auto flex w-full max-w-6xl justify-evenly'>
-          <Navbar.Link isActive={activePage === '/feed'} href='/feed'>
-            feed
-          </Navbar.Link>
-          <Navbar.Link isActive={activePage === '/community'} href='/community'>
-            community
-          </Navbar.Link>
-          <Navbar.Link isActive={activePage === '/live'} href='/live'>
-            <div className='mr-1 h-4 w-4 rounded-xl bg-red-500' /> live
-          </Navbar.Link>
-        </Navbar.Content>
+        <NavbarContent className='mx-auto flex w-full max-w-6xl justify-evenly'>
+          <NavbarItem isActive={activePage === '/feed'}>
+            <Link href='/feed'>feed</Link>
+          </NavbarItem>
+          <NavbarItem isActive={activePage === '/community'}>
+            <Link href='/community'>community</Link>
+          </NavbarItem>
+          <NavbarItem isActive={activePage === '/live'}>
+            <Link href='/live'>
+              <div className='mr-1 h-4 w-4 rounded-xl bg-red-500' /> live
+            </Link>
+          </NavbarItem>
+        </NavbarContent>
         <div className='absolute right-16 top-8'>
-          <Dropdown placement='bottom-right'>
-            <Dropdown.Trigger>
+          <Dropdown>
+            <DropdownTrigger>
               <NUIAvatar
-                size='xl'
-                text={
+                size='lg'
+                name={
                   userData?.displayName
                     ? userData.displayName.slice(0, 2)
                     : userData?.email?.slice(0, 2)
                 }
                 src={userData?.avatarURL || undefined}
-                className='mr-4 inline-flex hover:shadow-md'
-                pointer
+                className='mr-4 inline-flex cursor-pointer hover:shadow-md'
               />
-            </Dropdown.Trigger>
-            <Dropdown.Menu onAction={handleDropdownSelect}>
-              <Dropdown.Item key='profile' variant='light'>
+            </DropdownTrigger>
+            <DropdownMenu onAction={handleDropdownSelect}>
+              <DropdownItem key='profile' variant='light'>
                 Profile
-              </Dropdown.Item>
-              <Dropdown.Item key='account' variant='light'>
+              </DropdownItem>
+              <DropdownItem key='account' variant='light'>
                 Account
-              </Dropdown.Item>
-              <Dropdown.Item
+              </DropdownItem>
+              <DropdownItem
                 key='signOut'
-                withDivider
+                showDivider
                 variant='light'
-                color='error'
+                color='danger'
               >
                 Sign Out
-              </Dropdown.Item>
-            </Dropdown.Menu>
+              </DropdownItem>
+            </DropdownMenu>
           </Dropdown>
         </div>
       </Navbar>
