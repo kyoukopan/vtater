@@ -1,4 +1,10 @@
 'use client';
+
+import { Image, Switch } from '@nextui-org/react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
 import AuthWrapper from '@/components/Auth/AuthWrapper';
 import NavbarWrapper from '@/components/NavbarWrapper';
 import Button from '@/components/lib/Button';
@@ -6,14 +12,10 @@ import Header from '@/components/lib/Header';
 import { db } from '@/lib/common/firebase';
 import useCurrentUser from '@/lib/hooks/useCurrentUser';
 import { useUpdateUserGallery } from '@/lib/hooks/useUser';
-import { Image, Switch } from '@nextui-org/react';
-import { doc, updateDoc } from 'firebase/firestore';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 
 function LayoutConfig({ userData, userDataLoading, user, setStep }: any) {
   const [imageSrc, setImageSrc] = useState(
-    'https://images.unsplash.com/photo-1469598614039-ccfeb0a21111?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'
+    'https://images.unsplash.com/photo-1469598614039-ccfeb0a21111?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
   );
   useEffect(() => {
     async function run() {
@@ -25,14 +27,12 @@ function LayoutConfig({ userData, userDataLoading, user, setStep }: any) {
         const data = await response.json();
         setImageSrc(data?.imageUrl);
         console.log(data);
-      } catch {
-        return;
-      }
+      } catch {}
     }
     run();
   }, []);
   const [fullWidth, setFullWidth] = useState(
-    userData?.gallery?.layout === 'full-width' ? true : false
+    userData?.gallery?.layout === 'full-width',
   );
 
   useEffect(() => {
@@ -56,7 +56,6 @@ function LayoutConfig({ userData, userDataLoading, user, setStep }: any) {
       return;
     }
     setStep(2);
-    return;
   }
   return (
     <>

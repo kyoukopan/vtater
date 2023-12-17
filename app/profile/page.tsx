@@ -1,8 +1,10 @@
 'use client';
-import useUser from '@/lib/hooks/useCurrentUser';
+
 import { Spinner } from '@nextui-org/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+
+import useUser from '@/lib/hooks/useCurrentUser';
 
 export default function Profile() {
   const { user, userLoading } = useUser();
@@ -15,6 +17,6 @@ export default function Profile() {
       return;
     }
     router.replace('/login');
-  }, [userLoading]);
+  }, [router, user, userLoading]);
   return <Spinner />;
 }

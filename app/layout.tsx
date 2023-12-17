@@ -1,5 +1,7 @@
-import Providers from './providers';
+import 'react-toastify/dist/ReactToastify.css';
+
 import '../styles/globals.css';
+import Providers from './providers';
 
 export default function RootLayout({
   children,

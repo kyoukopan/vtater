@@ -3,14 +3,14 @@ import {
   FirebaseApp,
   FirebaseOptions,
   getApps,
-  initializeApp
+  initializeApp,
 } from 'firebase/app';
 // TODO: Add SDKs for Firebase products that you want to use
 import { Auth, connectAuthEmulator, getAuth } from 'firebase/auth';
 import {
-  connectFirestoreEmulator,
   Firestore,
-  getFirestore
+  connectFirestoreEmulator,
+  getFirestore,
 } from 'firebase/firestore';
 import { connectStorageEmulator, getStorage } from 'firebase/storage';
 

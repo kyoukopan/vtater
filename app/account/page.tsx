@@ -1,13 +1,5 @@
 'use client';
-import AuthWrapper from '@/components/Auth/AuthWrapper';
-import NavbarWrapper from '@/components/NavbarWrapper';
-import Avatar from '@/components/lib/Avatar';
-import Button, { IconButton } from '@/components/lib/Button';
-import { FieldRow } from '@/components/lib/Field';
-import Header from '@/components/lib/Header';
-import Input from '@/components/lib/Input';
-import Text from '@/components/lib/Text';
-import { auth, db, storage } from '@/lib/common/firebase';
+
 import { faPen, faSun } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -15,6 +7,7 @@ import {
   Card,
   Modal,
   ModalBody,
+  ModalContent,
   ModalFooter,
   ModalHeader,
   Spinner,
@@ -24,14 +17,24 @@ import {
 import { User } from 'firebase/auth';
 import { DocumentReference, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref } from 'firebase/storage';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   useAuthState,
   useSendEmailVerification,
 } from 'react-firebase-hooks/auth';
 import { useUploadFile } from 'react-firebase-hooks/storage';
 import { toast } from 'react-toastify';
+
+import AuthWrapper from '@/components/Auth/AuthWrapper';
+import NavbarWrapper from '@/components/NavbarWrapper';
+import Avatar from '@/components/lib/Avatar';
+import Button, { IconButton } from '@/components/lib/Button';
+import { FieldRow } from '@/components/lib/Field';
+import Header from '@/components/lib/Header';
+import Input from '@/components/lib/Input';
+import Text from '@/components/lib/Text';
+import { auth, db, storage } from '@/lib/common/firebase';
 
 function EmailWithVerification({
   user: { email, emailVerified = false },
@@ -56,54 +59,65 @@ function EmailWithVerification({
 }
 
 function WelcomeModal({
-  visible,
-  onClose,
   updateUsernameInDb,
+  defaultOpen,
 }: {
-  visible: boolean;
-  onClose: () => void;
-  updateUsernameInDb: Function;
+  updateUsernameInDb: (displayName: string) => Promise<boolean>;
+  defaultOpen: boolean;
 }) {
   const [displayName, setDisplayName] = useState('');
 
-  async function handleSubmit() {
-    if (!displayName) return;
+  const handleSubmit = useCallback(async (): Promise<boolean> => {
     try {
       await updateUsernameInDb(displayName);
+      return true;
     } catch {
       toast.error('Could not update profile, try again later');
-      return;
+      return false;
     }
-    onClose();
-  }
+  }, [displayName, updateUsernameInDb]);
   return (
-    <Modal isOpen={visible} isDismissable={false} backdrop='blur'>
-      <ModalHeader className='justify-start'>
-        <Header h={3}>Welcome!</Header>
-      </ModalHeader>
-      <ModalBody className='h-50'>
-        <Text>
-          <strong>ArtShare</strong> is a community for sharing your work and
-          building a community.
-        </Text>
-        <Header h={4} className='mb-4 mt-4 font-normal'>
-          first, set your display name...
-        </Header>
-        <Input
-          isClearable
-          placeholder='username'
-          fullWidth
-          style={{ marginBottom: '$4' }}
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target?.value)}
-        />
-        <Text>don't worry if someone's taken it already</Text>
-      </ModalBody>
-      <ModalFooter className='justify-start'>
-        <Button wide disabled={!displayName} onPress={handleSubmit}>
-          done
-        </Button>
-      </ModalFooter>
+    <Modal isDismissable backdrop='blur' defaultOpen={defaultOpen}>
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className='justify-start'>
+              <Header h={3}>Welcome!</Header>
+            </ModalHeader>
+            <ModalBody className='h-50'>
+              <Text>
+                <strong>ArtShare</strong> is a community for sharing your work
+                and building a community.
+              </Text>
+              <Header h={4} className='mb-4 mt-4 font-normal'>
+                first, set your display name...
+              </Header>
+              <Input
+                isClearable
+                placeholder='username'
+                fullWidth
+                style={{ marginBottom: '$4' }}
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target?.value)}
+              />
+              <Text>don't worry if someone's taken it already</Text>
+            </ModalBody>
+            <ModalFooter className='justify-start'>
+              <Button
+                wide
+                disabled={!displayName}
+                onPress={async () => {
+                  if (!displayName) return;
+                  const result = await handleSubmit();
+                  if (result) onClose();
+                }}
+              >
+                done
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
     </Modal>
   );
 }
@@ -117,7 +131,8 @@ export default function Profile() {
   const [file, setFile] = useState<File | null>(null);
   const [previewSrc, setPreviewSrc] = useState('');
   const [loading, setLoading] = useState(true);
-  const [refresh, setRefresh] = useState(Symbol());
+  // eslint-disable-next-line symbol-description
+  const [refresh, setRefresh] = useState(0);
 
   const [docRef, setDocRef] = useState<DocumentReference>();
   const [ageRange, setAgeRange] = useState('');
@@ -128,19 +143,15 @@ export default function Profile() {
 
   const [uploadFile, uploading] = useUploadFile();
 
-  const router = useRouter();
-  const [showWelcome, setShowWelcome] = useState(
-    router.query.welcome === 'true'
-  );
   useEffect(() => {
     async function run() {
       if (!user) {
         return;
       }
       setLoading(true);
-      const ref = doc(db, 'users', user.uid);
-      setDocRef(ref);
-      const resp = await getDoc(ref);
+      const docref = doc(db, 'users', user.uid);
+      setDocRef(docref);
+      const resp = await getDoc(docref);
       if (!resp.exists()) {
         return;
       }
@@ -154,6 +165,7 @@ export default function Profile() {
     }
     run();
   }, [user, refresh]);
+
   useEffect(() => {
     async function tryUpdate() {
       if (!docRef) return;
@@ -164,10 +176,12 @@ export default function Profile() {
         ageRange,
       };
       await updateDoc(docRef, data);
-      setRefresh(Symbol());
+      // eslint-disable-next-line symbol-description
+      setRefresh((r) => r + 1);
       setLoading(false);
     }
-    editing === false && tryUpdate();
+    if (editing === false) tryUpdate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
 
   useEffect(() => {
@@ -187,7 +201,7 @@ export default function Profile() {
     if (!file || !docRef) return;
     const storageRef = ref(
       storage,
-      `users/avatars/${user?.email}--${file.name}`
+      `users/avatars/${user?.email}--${file.name}`,
     );
     uploadFile(storageRef, file)
       .then((result) => {
@@ -202,11 +216,12 @@ export default function Profile() {
         }).then(() => {
           toast.success("Updated avatar. Lookin' good 😏");
           setPreviewSrc(
-            `http://localhost:9199/${result.ref.bucket}/${result.ref?.fullPath}`
+            `http://localhost:9199/${result.ref.bucket}/${result.ref?.fullPath}`,
           );
           setUploadAvatarVisible(false);
           setFile(null);
-          setRefresh(Symbol());
+          // eslint-disable-next-line symbol-description
+          setRefresh((r) => r + 1);
         });
       })
       .catch(() => {
@@ -229,29 +244,34 @@ export default function Profile() {
       });
   }
 
-  function toggleDarkMode() {
+  const toggleDarkMode = useCallback(() => {
     if (!docRef) return;
-    void updateDoc(docRef, {
+    updateDoc(docRef, {
       config: { theme: theme === 'light' ? 'dark' : 'light' },
     });
     setTheme('dark');
-  }
+  }, [docRef, theme]);
+
+  const SunIcon = useMemo(() => <FontAwesomeIcon icon={faSun} />, []);
+
+  const welcomeParam = useSearchParams().get('welcome');
+
   return (
     <AuthWrapper>
       <NavbarWrapper>
-        {user && (
+        {user && !loading && (
           <WelcomeModal
-            visible={showWelcome && !displayName}
-            onClose={() => setShowWelcome(false)}
-            updateUsernameInDb={async (displayName: string) => {
+            defaultOpen={welcomeParam === 'true' && !displayName}
+            updateUsernameInDb={async (_displayName: string) => {
               if (!docRef) return false;
-              await updateDoc(docRef, { displayName });
+              await updateDoc(docRef, { displayName: _displayName });
+              setRefresh((r) => r + 1);
               return true;
             }}
           />
         )}
         <main className='mt-12 mb-20'>
-          {router?.query?.welcome === 'true' && (
+          {welcomeParam === 'true' && (
             <div className='space-y-4'>
               <Text>
                 <span className='text-lg'>👋</span> Welcome to the community! To
@@ -356,10 +376,8 @@ export default function Profile() {
                       checked={theme === 'dark'}
                       onChange={toggleDarkMode}
                       color='default'
-                      thumbIcon={({ isSelected, className }) =>
-                        isSelected ? (
-                          <FontAwesomeIcon icon={faSun} />
-                        ) : undefined
+                      thumbIcon={({ isSelected }) =>
+                        isSelected ? SunIcon : undefined
                       }
                     />
                   }
@@ -380,7 +398,7 @@ export default function Profile() {
               }
             >
               <Tooltip
-                isOpen={router.query?.welcome === 'true'}
+                isOpen={welcomeParam === 'true'}
                 content='click me to edit!'
                 style={{ zIndex: 100 }}
               >
@@ -406,7 +424,6 @@ export default function Profile() {
           <ModalBody className='h-48'>
             <div className='flex items-center'>
               <Avatar
-                // @ts-ignore
                 size='huge'
                 className='pointer-events-none mr-8 flex-shrink-0'
                 customSrc={previewSrc}

@@ -31,10 +31,9 @@ import {
 //   bottomPassword: BottomInputPassword,
 // };
 
-type InputType =
-  | typeof NUIInput
-  // | typeof TopInput
-  // | typeof TopInputPassword;
+type InputType = typeof NUIInput;
+// | typeof TopInput
+// | typeof TopInputPassword;
 
 // =========
 // MAIN
@@ -69,9 +68,9 @@ export default function Input({
 }: InputProps) {
   let InputComponent: InputType = NUIInput;
   if (password && side) {
-    InputComponent = NUIInput // TODO: update componentMap[`${side}Password`];
+    InputComponent = NUIInput; // TODO: update componentMap[`${side}Password`];
   } else if (side) {
-    InputComponent = NUIInput // componentMap[side];
+    InputComponent = NUIInput; // componentMap[side];
   }
 
   const color = !valid && validateNow ? 'danger' : 'default';

@@ -1,12 +1,14 @@
 'use client';
-import Avatar from '@/components/lib/Avatar';
-import Header from '@/components/lib/Header';
-import NavbarWrapper from '@/components/NavbarWrapper';
-import { db } from '@/lib/common/firebase';
+
 import { Spinner } from '@nextui-org/react';
 import { collection } from 'firebase/firestore';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useCollection } from 'react-firebase-hooks/firestore';
+
+import NavbarWrapper from '@/components/NavbarWrapper';
+import Avatar from '@/components/lib/Avatar';
+import Header from '@/components/lib/Header';
+import { db } from '@/lib/common/firebase';
 
 export default function Community() {
   const [users, loading] = useCollection(collection(db, 'users'));
@@ -18,6 +20,7 @@ export default function Community() {
         users?.docs?.length &&
         users?.docs?.map((user) => {
           return (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div
               className='flex cursor-pointer items-center space-x-3'
               onClick={() => router.push(`/profile/${user?.id}`)}

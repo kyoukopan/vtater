@@ -1,9 +1,11 @@
-import { db, storage } from '@/lib/common/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { ref } from 'firebase/storage';
 import { useEffect, useRef, useState } from 'react';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { useUploadFile } from 'react-firebase-hooks/storage';
+
+import { db, storage } from '@/lib/common/firebase';
+
 import useCurrentUser from './useCurrentUser';
 
 /**
@@ -30,7 +32,7 @@ export function useUpdateUserGallery() {
     if (!user || userDataLoading) return null;
     const uploadDocRef = ref(
       storage,
-      `users/uploads/${user?.uid}/${file.name}`
+      `users/uploads/${user?.uid}/${file.name}`,
     );
     setUpdating(true);
     try {

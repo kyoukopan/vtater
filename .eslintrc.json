@@ -4,12 +4,11 @@
     "es2021": true
   },
   "extends": [
-    "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@next/next/recommended",
     "airbnb",
     "airbnb/hooks",
     "airbnb-typescript",
-    "next/core-web-vitals",
     "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
@@ -18,14 +17,17 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["react", "@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "import"],
   "rules": {
+    "react/react-in-jsx-scope": "off",
     "react/require-default-props": [
       "error",
       {
         "functions": "defaultArguments"
       }
     ],
-    "react/jsx-props-no-spreading": "off"
+    "react/jsx-props-no-spreading": "off",
+    "import/extensions": "off",
+    "react/no-unescaped-entities": ["error", { "forbid": [">", "}"] }]
   }
 }

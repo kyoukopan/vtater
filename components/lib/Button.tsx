@@ -38,9 +38,10 @@ export default function Button({
   return (
     <NUIButton
       disabled={loading || disabled}
-      light={link}
       ripple={!link}
       css={styles}
+      isDisabled={disabled}
+      variant={link ? 'light' : 'solid'}
       {...props}
     >
       {loading ? <Spinner /> : children}

@@ -1,7 +1,8 @@
-import { auth, db } from '@/lib/common/firebase';
 import { doc } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
+
+import { auth, db } from '@/lib/common/firebase';
 
 /**
  * Hook to get the CURRENT user's auth object and data from DB
@@ -9,7 +10,7 @@ import { useDocumentData } from 'react-firebase-hooks/firestore';
 export default function useCurrentUser() {
   const [user, userLoading] = useAuthState(auth);
   const [userData, userDataLoading] = useDocumentData(
-    user && doc(db, 'users', user.uid)
+    user && doc(db, 'users', user.uid),
   );
   return { user, userData, userLoading, userDataLoading };
 }

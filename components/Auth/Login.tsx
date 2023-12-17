@@ -1,4 +1,3 @@
-import { auth } from '@/lib/common/firebase';
 import {
   Card,
   Modal,
@@ -12,6 +11,9 @@ import {
   useSignInWithEmailAndPassword,
 } from 'react-firebase-hooks/auth';
 import { toast } from 'react-toastify';
+
+import { auth } from '@/lib/common/firebase';
+
 import Button from '../lib/Button';
 import Header from '../lib/Header';
 import Input from '../lib/Input';
@@ -46,7 +48,7 @@ function PasswordResetLinkAndModal({
   useEffect(() => {
     if (error)
       toast.error(
-        'Unable to send password reset email. Please ensure email is the same one as on your account.'
+        'Unable to send password reset email. Please ensure email is the same one as on your account.',
       );
     setEmail('');
   }, [error, setEmail]);

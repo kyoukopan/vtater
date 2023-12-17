@@ -1,18 +1,20 @@
-import { auth } from '@/lib/common/firebase';
 import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Link,
+  Avatar as NUIAvatar,
   Navbar,
   NavbarContent,
   NavbarItem,
-  Avatar as NUIAvatar,
 } from '@nextui-org/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import React, { Key } from 'react';
 import { useSignOut } from 'react-firebase-hooks/auth';
+
+import { auth } from '@/lib/common/firebase';
+
 import useCurrentUser from '../lib/hooks/useCurrentUser';
 
 export default function NavbarWrapper({

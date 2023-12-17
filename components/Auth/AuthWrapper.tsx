@@ -1,8 +1,10 @@
 'use client';
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/lib/common/firebase";
-import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
+
+import { auth } from '@/lib/common/firebase';
 
 export default function AuthWrapper({
   children,
@@ -15,7 +17,7 @@ export default function AuthWrapper({
   useEffect(() => {
     if (loading) return;
     if (!user || error) {
-      router.replace("/login");
+      router.replace('/login');
     }
   }, [error, loading, router, user]);
 

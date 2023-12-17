@@ -1,9 +1,11 @@
 'use server';
-import { adminAuth, adminDb } from '@/lib/backend/firebase';
-import { apiResponse } from '@/lib/backend/utils';
+
 import { Timestamp } from 'firebase-admin/firestore';
 import { UserRecord } from 'firebase-admin/lib/auth/user-record';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { adminAuth, adminDb } from '@/lib/backend/firebase';
+import { apiResponse } from '@/lib/backend/utils';
 
 type SignupReq = {
   email: string;
@@ -14,10 +16,7 @@ export type SignupResp = NextResponse<{
   user?: UserRecord;
   errMsg?: string;
 }>;
-export async function POST(
-  req: NextRequest,
-  context: { params: string }
-): Promise<SignupResp> {
+export async function POST(req: NextRequest): Promise<SignupResp> {
   const { email, password } = (await req.json()) as SignupReq;
   if (!email || !(password?.length >= 6)) {
     return apiResponse({ success: false, errMsg: 'Invalid request' }, 400);
@@ -31,7 +30,7 @@ export async function POST(
     });
     if (!user) {
       // unable to create user
-      throw 'Unable to sign up';
+      throw new Error('Unable to sign up');
     }
 
     const timestamp = Timestamp.now();

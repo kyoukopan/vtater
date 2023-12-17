@@ -1,7 +1,9 @@
-import { auth } from '@/lib/common/firebase';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-import { Avatar as NUIAvatar, AvatarProps } from '@nextui-org/react';
+import { AvatarProps, Avatar as NUIAvatar } from '@nextui-org/react';
 import { useAuthState } from 'react-firebase-hooks/auth';
+
+import { auth } from '@/lib/common/firebase';
+
 import useUser from '../../lib/hooks/useUser';
 import { IconButton } from './Button';
 
